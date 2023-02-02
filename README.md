@@ -1,16 +1,6 @@
-# delivery_app_tech_test
-
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Just a couple points about my work:
+<br/>
+<p>Due to it being a small project I didn't go through the effort of implementing proper ThemeData classes, so the styling is a little lazy.</p>
+<p>I normally would have broken down the functions for buttons into their own files for tidier frontend code (as you can see with some of the other widgets), but thought i'd focus more on getting the implementation right for the logic on those sections rather than having the code in different areas.</p>
+</br>
+Thanks for your time and for looking at my attempt at your tech test!
