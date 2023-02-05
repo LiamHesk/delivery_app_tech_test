@@ -1,3 +1,4 @@
+import 'package:delivery_app_tech_test/widgets/notifications/custom_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:delivery_app_tech_test/repository/data/vehicle_enum.dart';
 import 'package:delivery_app_tech_test/utilities/order/list_of_vehicles.dart';
@@ -5,6 +6,7 @@ import 'package:delivery_app_tech_test/widgets/input/custom_textfield.dart';
 import 'package:delivery_app_tech_test/widgets/layouts/page_title.dart';
 import 'package:delivery_app_tech_test/widgets/layouts/footer.dart';
 import 'package:delivery_app_tech_test/widgets/layouts/header.dart';
+import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -19,6 +21,8 @@ class Order extends StatefulWidget {
 
 class _OrderState extends State<Order> {
   bool loading = false;
+  final postCodeCheck = RegExp(
+      r'^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? ?[0-9][A-Za-z]{2}|[Gg][Ii][Rr] ?0[Aa]{2})$');
   final TextEditingController _pickup = TextEditingController();
   final TextEditingController _dropoff = TextEditingController();
   String currentCost = '';
@@ -163,31 +167,54 @@ class _OrderState extends State<Order> {
                           ),
                         ),
                   onPressed: () async {
-                    setState(() {
-                      loading = true;
-                    });
+                    try {
+                      setState(() {
+                        loading = true;
+                      });
 
-                    List<Location> pickupAddress =
-                        await locationFromAddress(_pickup.text);
-                    List<Location> dropoffAddress =
-                        await locationFromAddress(_dropoff.text);
+                      bool pickupCheck = postCodeCheck.hasMatch(_pickup.text);
+                      bool dropoffCheck = postCodeCheck.hasMatch(_dropoff.text);
 
-                    double distanceInMeters = Geolocator.distanceBetween(
-                      pickupAddress[0].latitude,
-                      pickupAddress[0].longitude,
-                      dropoffAddress[0].latitude,
-                      dropoffAddress[0].longitude,
-                    );
+                      if (pickupCheck && dropoffCheck) {
+                        List<Location> pickupAddress =
+                            await locationFromAddress(_pickup.text);
+                        List<Location> dropoffAddress =
+                            await locationFromAddress(_dropoff.text);
 
-                    double miles = distanceInMeters / 1609;
-                    double cost = (miles * selectedVehicle.value) / 100;
-                    double costNoVAT = cost / 1.2;
+                        double distanceInMeters = Geolocator.distanceBetween(
+                          pickupAddress[0].latitude,
+                          pickupAddress[0].longitude,
+                          dropoffAddress[0].latitude,
+                          dropoffAddress[0].longitude,
+                        );
 
-                    setState(() {
-                      currentCost = '£${cost.toStringAsFixed(2)}';
-                      currentCostNoVAT = '£${costNoVAT.toStringAsFixed(2)}';
-                      loading = false;
-                    });
+                        double miles = distanceInMeters / 1609;
+                        double cost = (miles * selectedVehicle.value) / 100;
+                        double costNoVAT = cost / 1.2;
+
+                        setState(() {
+                          currentCost = '£${cost.toStringAsFixed(2)}';
+                          currentCostNoVAT = '£${costNoVAT.toStringAsFixed(2)}';
+                        });
+                      } else {
+                        setState(() {
+                          currentCost = '';
+                          currentCostNoVAT = '';
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          customSnackBar(context,
+                              'Post code you have entered is invalid.'),
+                        );
+                      }
+                    } on PlatformException catch (exception) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        customSnackBar(context, exception.message!),
+                      );
+                    } finally {
+                      setState(() {
+                        loading = false;
+                      });
+                    }
                   },
                 ),
               ),
