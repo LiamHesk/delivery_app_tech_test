@@ -12,7 +12,7 @@ Future<SignInResponse> signIn(String username, String password) async {
     return SignInResponse(success: true, message: 'Successfully logged in.');
   } else if (response.statusCode == 422) {
     return SignInResponse(
-        success: true, message: 'The provided credentials are incorrect.');
+        success: false, message: 'The provided credentials are incorrect.');
   } else {
     dynamic result = jsonDecode(response.body);
     return SignInResponse(success: false, message: result['message']);
