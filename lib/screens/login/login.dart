@@ -7,6 +7,7 @@ import 'package:delivery_app_tech_test/widgets/layouts/header.dart';
 import 'package:delivery_app_tech_test/widgets/layouts/page_title.dart';
 import 'package:delivery_app_tech_test/widgets/notifications/custom_snackbar.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
   const Login({
@@ -20,10 +21,18 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
+  bool alreadySignedIn = false;
+  late SharedPreferences prefs;
 
   @override
   void initState() {
     super.initState();
+
+    instantiatePrefs();
+  }
+
+  void instantiatePrefs() async {
+    prefs = await SharedPreferences.getInstance();
   }
 
   @override
@@ -107,6 +116,8 @@ class _LoginState extends State<Login> {
 
                     if (context.mounted) {
                       if (response.success) {
+                        prefs.setString('token', response.token!);
+
                         if (ModalRoute.of(context)!.settings.name != '/Order') {
                           Navigator.pushNamed(
                             context,
